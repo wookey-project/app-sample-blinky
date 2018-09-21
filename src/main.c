@@ -28,15 +28,18 @@ uint64_t    last_isr;   /* Last interrupt in milliseconds */
  */
 void exti_button_handler ()
 {
-    uint64_t    clock;
+    uint64_t        clock;
+    e_syscall_ret   ret;
 
     /* Syscall to get the elapsed cpu time since the board booted */
-    sys_get_systick(&clock, PREC_MILLI);
+    ret = sys_get_systick(&clock, PREC_MILLI);
 
-    /* Debounce time (in ms) */
-    if (clock - last_isr < 20) {
-        last_isr = clock;
-        return;
+    if (ret == SYS_E_DONE) {
+	    /* Debounce time (in ms) */
+	    if (clock - last_isr < 20) {
+	        last_isr = clock;
+	        return;
+	    }
     }
 
     green_state   = (green_state == ON) ? OFF : ON;
