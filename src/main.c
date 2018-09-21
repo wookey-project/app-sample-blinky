@@ -2,6 +2,12 @@
 #include "api/types.h"
 #include "api/print.h"
 
+/*
+ * Simple example of a user task that use GPIOs and set an Interrupt Service
+ * Routine (ISR).
+ * By default, the debug USART TX pin is on GPIO PB6.
+ */
+
 enum led_state_t {OFF, ON};
 
 enum led_state_t green_state  = ON;
@@ -12,22 +18,33 @@ enum led_state_t display_leds = ON;
 
 device_t    leds, button;
 int         desc_leds, desc_button;
-uint64_t    last_isr;
+uint64_t    last_isr;   /* Last interrupt in milliseconds */
 
+/*
+ * User defined ISR to execute when the blue button (gpio PA0) on the STM32
+ * discovery board is pressed.
+ * Note : ISRs can use only a restricted set of syscalls. More info on kernel
+ *        sources (Ada/ewok-syscalls-handler.adb or syscalls-handler.c)
+ */
 void exti_button_handler ()
 {
     uint64_t    clock;
 
+    /* Syscall to get the elapsed cpu time since the board booted */
     sys_get_systick(&clock, PREC_MILLI);
 
     /* Debounce time (in ms) */
-    if (clock - last_isr > 20) {
-        green_state   = (green_state == ON) ? OFF : ON;
-        orange_state  = (orange_state == ON) ? OFF : ON;
-        red_state     = (red_state == ON) ? OFF : ON;
-        blue_state    = (blue_state == ON) ? OFF : ON;
-        display_leds  = ON;
+    if (clock - last_isr < 20) {
+        last_isr = clock;
+        return;
     }
+
+    green_state   = (green_state == ON) ? OFF : ON;
+    orange_state  = (orange_state == ON) ? OFF : ON;
+    red_state     = (red_state == ON) ? OFF : ON;
+    blue_state    = (blue_state == ON) ? OFF : ON;
+    display_leds  = ON;
+
     last_isr = clock;
 }
 
@@ -93,7 +110,7 @@ int _main(uint32_t my_id)
     if (ret) {
         printf ("error: sys_init() %s\n", strerror(ret));
     } else {
-        printf ("sys_init() - sucess\n");
+        printf ("sys_init() - success\n");
     }
 
     memset (&button, 0, sizeof (button));
