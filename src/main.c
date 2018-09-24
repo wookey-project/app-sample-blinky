@@ -22,7 +22,10 @@ led_state_t blue_state   = OFF;
 /* Blink state */
 led_state_t display_leds = ON;
 
-bool        button_pushed = false;
+/* This vaiable handles the button push events. It is shared between the ISR
+ * handler code and the main thread, hence the 'volatile' qualifier.
+ */
+volatile bool        button_pushed = false;
 
 device_t    leds, button;
 int         desc_leds, desc_button;
@@ -167,7 +170,7 @@ int _main(uint32_t my_id)
         printf ("sys_init() - sucess\n");
     }
 
-    /* Devices and ressources registration is finished */
+    /* Devices and resources registration is finished */
     ret = sys_init(INIT_DONE);
     if (ret) {
         printf ("error INIT_DONE: %s\n", strerror(ret));
