@@ -11,19 +11,22 @@
  * By default, the debug USART TX pin is on GPIO PB6.
  */
 
-enum led_state_t {OFF, ON};
+typedef enum {OFF, ON} led_state_t;
 
-enum led_state_t    green_state  = ON;
-enum led_state_t    orange_state = OFF;
-enum led_state_t    red_state    = ON;
-enum led_state_t    blue_state   = OFF;
-enum led_state_t    display_leds = ON;
+/* Leds state */
+led_state_t green_state  = ON;
+led_state_t orange_state = OFF;
+led_state_t red_state    = ON;
+led_state_t blue_state   = OFF;
 
-bool                button_pushed = false;
+/* Blink state */
+led_state_t display_leds = ON;
 
-device_t            leds, button;
-int                 desc_leds, desc_button;
-uint64_t            last_isr;   /* Last interrupt in milliseconds */
+bool        button_pushed = false;
+
+device_t    leds, button;
+int         desc_leds, desc_button;
+uint64_t    last_isr;   /* Last interrupt in milliseconds */
 
 /*
  * User defined ISR to execute when the blue button (gpio PA0) on the STM32
@@ -52,15 +55,8 @@ void exti_button_handler ()
 	    }
     }
 
-    green_state   = (green_state == ON) ? OFF : ON;
-    orange_state  = (orange_state == ON) ? OFF : ON;
-    red_state     = (red_state == ON) ? OFF : ON;
-    blue_state    = (blue_state == ON) ? OFF : ON;
-    display_leds  = ON;
-
-    button_pushed = true;
-
     last_isr = clock;
+    button_pushed = true;
 }
 
 
@@ -70,8 +66,7 @@ int _main(uint32_t my_id)
 
     printf("Hello, I'm BLINKY task. My id is %x\n", my_id);
 
-    /* Zeroing the structure to avoid improper values detected
-     * by the kernel */
+    /* Zeroing the structure to avoid improper values detected by the kernel */
     memset (&leds, 0, sizeof (leds));
 
     strncpy (leds.name, "LEDs", sizeof (leds.name));
@@ -82,12 +77,14 @@ int _main(uint32_t my_id)
      * We configure 4 GPIOs here corresponding to the STM32 Discovery F407 LEDs (LD4, LD3, LD5, LD6):
      *     - PD12, PD13, PD14 and PD15 are in output mode
      * See the datasheet of the board here for more information:
-     * https://www.st.com/content/ccc/resource/technical/document/user_manual/70/fe/4a/3f/e7/e1/4f/7d/DM00039084.pdf/files/DM00039084.pdf/jcr:content/translations/en.DM00039084.pdf 
-     * 
+     * https://www.st.com/content/ccc/resource/technical/document/user_manual/70/fe/4a/3f/e7/e1/4f/7d/DM00039084.pdf/files/DM00039084.pdf/jcr:content/translations/en.DM00039084.pdf
+     *
      * NOTE: since we do not need an ISR handler for the LED gpios, we do not configure it (we only need to
      * synchronously set the LEDs)
      */
-    leds.gpio_num = 4; /* Number of configured GPIO */
+
+    /* Number of configured GPIO */
+    leds.gpio_num = 4;
 
     leds.gpios[0].kref.port = GPIO_PD;
     leds.gpios[0].kref.pin = 12;
@@ -144,6 +141,7 @@ int _main(uint32_t my_id)
      * We only focus on the button push event, we use the GPIO_EXTI_TRIGGER_RISE configuration
      * of the EXTI trigger.
      */
+
     memset (&button, 0, sizeof (button));
     strncpy (button.name, "BUTTON", sizeof (button.name));
 
@@ -169,10 +167,7 @@ int _main(uint32_t my_id)
         printf ("sys_init() - sucess\n");
     }
 
-    /*
-     * Devices and ressources registration is finished
-     */
-
+    /* Devices and ressources registration is finished */
     ret = sys_init(INIT_DONE);
     if (ret) {
         printf ("error INIT_DONE: %s\n", strerror(ret));
@@ -184,10 +179,25 @@ int _main(uint32_t my_id)
     /*
      * Main task: the main task is a while loop to toggle two of the four LEDs on the board.
      * When the user pushes the 'blue' button of the board, the other two LEDs begin to toggle.
-     * 
      */
 
     while (1) {
+
+        if (button_pushed == true) {
+            printf ("button has been pressed\n");
+
+            /* Change leds state */
+            green_state   = (green_state == ON) ? OFF : ON;
+            orange_state  = (orange_state == ON) ? OFF : ON;
+            red_state     = (red_state == ON) ? OFF : ON;
+            blue_state    = (blue_state == ON) ? OFF : ON;
+
+            /* Show leds */
+            display_leds  = ON;
+
+            button_pushed = false;
+        }
+
         if (display_leds == ON) {
             ret = sys_cfg(CFG_GPIO_SET, (uint8_t) leds.gpios[0].kref.val, green_state);
             if (ret != SYS_E_DONE) {
@@ -233,11 +243,6 @@ int _main(uint32_t my_id)
                 printf ("sys_cfg(): failed\n");
                 return 1;
             }
-        }
-
-        if (button_pushed == true) {
-            printf ("button has been pressed\n");
-            button_pushed = false;
         }
 
         /* Make the leds blink */
