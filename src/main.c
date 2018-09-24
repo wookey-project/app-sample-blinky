@@ -3,8 +3,11 @@
 #include "api/print.h"
 
 /*
- * Simple example of a user task that use GPIOs and set an Interrupt Service
- * Routine (ISR).
+ * Simple example of a single user task that uses GPIOs.
+ * Four GPIOs are used in output mode (the LEDs) and one GPIO in
+ * input mode (the push Button).
+ * It sets an Interrupt Service Routine (ISR) to handle the button push events.
+ *
  * By default, the debug USART TX pin is on GPIO PB6.
  */
 
