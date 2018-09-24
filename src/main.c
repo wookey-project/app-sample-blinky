@@ -8,7 +8,8 @@
  * input mode (the push Button).
  * It sets an Interrupt Service Routine (ISR) to handle the button push events.
  *
- * By default, the debug USART TX pin is on GPIO PB6.
+ * By default, the debug USART TX pin is on GPIO PB6 (this is set in the kernel
+ * and tranparent to user applications).
  */
 
 typedef enum {OFF, ON} led_state_t;
