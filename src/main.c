@@ -10,15 +10,17 @@
 
 enum led_state_t {OFF, ON};
 
-enum led_state_t green_state  = ON;
-enum led_state_t orange_state = OFF;
-enum led_state_t red_state    = ON;
-enum led_state_t blue_state   = OFF;
-enum led_state_t display_leds = ON;
+enum led_state_t    green_state  = ON;
+enum led_state_t    orange_state = OFF;
+enum led_state_t    red_state    = ON;
+enum led_state_t    blue_state   = OFF;
+enum led_state_t    display_leds = ON;
 
-device_t    leds, button;
-int         desc_leds, desc_button;
-uint64_t    last_isr;   /* Last interrupt in milliseconds */
+bool                button_pushed = false;
+
+device_t            leds, button;
+int                 desc_leds, desc_button;
+uint64_t            last_isr;   /* Last interrupt in milliseconds */
 
 /*
  * User defined ISR to execute when the blue button (gpio PA0) on the STM32
@@ -47,6 +49,8 @@ void exti_button_handler ()
     red_state     = (red_state == ON) ? OFF : ON;
     blue_state    = (blue_state == ON) ? OFF : ON;
     display_leds  = ON;
+
+    button_pushed = true;
 
     last_isr = clock;
 }
@@ -212,8 +216,15 @@ int _main(uint32_t my_id)
             }
         }
 
+        if (button_pushed == true) {
+            printf ("button has been pressed\n");
+            button_pushed = false;
+        }
+
+        /* Make the leds blink */
         display_leds = (display_leds == ON) ? OFF : ON;
 
+        /* Sleeping for 500 ms */
         sys_sleep (500, SLEEP_MODE_INTERRUPTIBLE);
     }
 
