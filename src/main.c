@@ -37,10 +37,10 @@ uint64_t    last_isr;   /* Last interrupt in milliseconds */
  * Note:  ISRs can use only a restricted set of syscalls. More info on kernel
  *        sources (Ada/ewok-syscalls-handler.adb or syscalls-handler.c)
  *
- * Because of possible "bouncing" issues when the button is pressed, one must take care of
- * some delay when sampling the GPIO. Hence the usage of sys_get_systick to wait at least
- * 20 milliseconds before sampling (this is a very basic way of handling the debouncing,
- * and is only here as an example!).
+ * Because of possible 'bouncing' issues when the button is pressed, one must take care of
+ * IRQ bursts. Hence the usage of sys_get_systick to wait at least 20 milliseconds
+ * before notifying that the button is pushed (this is a very basic way of
+ * handling the debouncing, and is only here as an example!).
  */
 void exti_button_handler ()
 {
