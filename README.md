@@ -5,7 +5,7 @@
 This is a very basic sample application on top of the EwoK microkernel for the STM32 Discovery F407.
 
 The purpose of this sample is to show how a single application can interact with the GPIOs, in both
-output mode (with the LEDs) and input mode (with the push Button).
+output mode (with the LEDs: PD12, PD13, PD14 and PD15) and input mode (with the push Button: PA0).
 
 Two of the four user LEDs of the board are blinking (green and red, or blue and orange). When the user
 pushes the user Button ('blue' button on the board), the other two LEDs start blinking and the former
