@@ -12,7 +12,7 @@
  * and tranparent to user applications).
  */
 
-typedef enum {OFF, ON} led_state_t;
+typedef enum {OFF = 0, ON = 1} led_state_t;
 
 /* Leds state */
 led_state_t green_state  = ON;
