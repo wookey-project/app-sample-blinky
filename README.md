@@ -1,5 +1,15 @@
 # The Blinky app use case example
 
+This application is configured with the C version of EwoK with:
+```
+  $ make boards/32f407disco/configs/disco_blinky_defconfig
+```
+
+This application are configured with the Ada/Spark version of EwoK with:
+```
+  $ make boards/32f407disco/configs/disco_blinky_ada_defconfig
+```
+
 ## Purpose of the example
 
 This is a very basic sample application on top of the EwoK microkernel for the STM32 Discovery F407.

@@ -5,11 +5,12 @@
 /*
  * Simple example of a single user task that uses GPIOs.
  * Four GPIOs are used in output mode (the LEDs) and one GPIO in
- * input mode (the push Button).
- * It sets an Interrupt Service Routine (ISR) to handle the button push events.
+ * input mode (the push Button). It sets an Interrupt Service Routine (ISR) to
+ * handle the button push events.
  *
- * By default, the debug USART TX pin is on GPIO PB6 (this is set in the kernel
- * and tranparent to user applications).
+ * Note:
+ *   By default, the debug USART TX pin is on GPIO PB6 (this is set in the
+ *   kernel and tranparent to user applications).
  */
 
 typedef enum {OFF = 0, ON = 1} led_state_t;
@@ -23,14 +24,17 @@ led_state_t blue_state   = OFF;
 /* Blink state */
 led_state_t display_leds = ON;
 
-/* This vaiable handles the button push events. It is shared between the ISR
+/*
+ * This vaiable handles the button push events. It is shared between the ISR
  * handler code and the main thread, hence the 'volatile' qualifier.
  */
-volatile bool        button_pushed = false;
+volatile bool   button_pushed = false;
 
 device_t    leds, button;
 int         desc_leds, desc_button;
-uint64_t    last_isr;   /* Last interrupt in milliseconds */
+
+/* Last interrupt in milliseconds */
+uint64_t    last_isr;
 
 /*
  * User defined ISR to execute when the blue button (gpio PA0) on the STM32
@@ -38,10 +42,10 @@ uint64_t    last_isr;   /* Last interrupt in milliseconds */
  * Note:  ISRs can use only a restricted set of syscalls. More info on kernel
  *        sources (Ada/ewok-syscalls-handler.adb or syscalls-handler.c)
  *
- * Because of possible 'bouncing' issues when the button is pressed, one must take care of
- * IRQ bursts. Hence the usage of sys_get_systick to wait at least 20 milliseconds
- * before notifying that the button is pushed (this is a very basic way of
- * handling the debouncing, and is only here as an example!).
+ * Because of possible 'bouncing' issues when the button is pressed, one must
+ * take care of IRQ bursts. Hence the usage of sys_get_systick to wait at least
+ * 20 milliseconds before notifying that the button is pushed (this is a very
+ * basic way of handling the debouncing, and is only here as an example!).
  */
 void exti_button_handler ()
 {
@@ -78,13 +82,14 @@ int _main(uint32_t my_id)
     /*
      * Configuring the LED GPIOs. Note: the related clocks are automatically set
      * by the kernel.
-     * We configure 4 GPIOs here corresponding to the STM32 Discovery F407 LEDs (LD4, LD3, LD5, LD6):
+     * We configure 4 GPIOs here corresponding to the STM32 Discovery F407 LEDs
+     * (LD4, LD3, LD5, LD6):
      *     - PD12, PD13, PD14 and PD15 are in output mode
      * See the datasheet of the board here for more information:
      * https://www.st.com/content/ccc/resource/technical/document/user_manual/70/fe/4a/3f/e7/e1/4f/7d/DM00039084.pdf/files/DM00039084.pdf/jcr:content/translations/en.DM00039084.pdf
      *
-     * NOTE: since we do not need an ISR handler for the LED gpios, we do not configure it (we only need to
-     * synchronously set the LEDs)
+     * NOTE: since we do not need an ISR handler for the LED gpios, we do not
+     * configure it (we only need to synchronously set the LEDs)
      */
 
     /* Number of configured GPIO */
@@ -126,7 +131,8 @@ int _main(uint32_t my_id)
     leds.gpios[3].type     = GPIO_PIN_OTYPER_PP;
     leds.gpios[3].speed    = GPIO_PIN_HIGH_SPEED;
 
-    /* Now that the leds device structure is filled, use sys_init to initialize it */
+    /* Now that the leds device structure is filled, use sys_init to initialize
+     * it */
     ret = sys_init(INIT_DEVACCESS, &leds, &desc_leds);
 
     if (ret) {
@@ -136,14 +142,17 @@ int _main(uint32_t my_id)
     }
 
     /*
-     * Configuring the Button GPIO. Note: the related clocks are automatically set
-     * by the kernel.
-     * We configure one GPIO here corresponding to the STM32 Discovery F407 'blue' push button (B1):
+     * Configuring the Button GPIO. Note: the related clocks are automatically
+     * set by the kernel.
+     * We configure one GPIO here corresponding to the STM32 Discovery F407
+     * 'blue' push button (B1):
      *     - PA0 is configured in input mode
      *
-     * NOTE: we need to setup an ISR handler (exti_button_handler) to asynchronously capture the button events.
-     * We only focus on the button push event, we use the GPIO_EXTI_TRIGGER_RISE configuration
-     * of the EXTI trigger.
+     * NOTE:
+     *   We need to setup an ISR handler (exti_button_handler) to
+     *   asynchronously capture the button events. We only focus on the button
+     *   push event, we use the GPIO_EXTI_TRIGGER_RISE configuration of the
+     *   EXTI trigger.
      */
 
     memset (&button, 0, sizeof (button));
@@ -162,7 +171,8 @@ int _main(uint32_t my_id)
     button.gpios[0].exti_trigger = GPIO_EXTI_TRIGGER_RISE;
     button.gpios[0].exti_handler = (user_handler_t) exti_button_handler;
 
-    /* Now that the button device structure is filled, use sys_init to initialize it */
+    /* Now that the button device structure is filled, use sys_init to
+     * initialize it */
     ret = sys_init(INIT_DEVACCESS, &button, &desc_button);
 
     if (ret) {
@@ -181,8 +191,9 @@ int _main(uint32_t my_id)
     printf ("init done.\n");
 
     /*
-     * Main task: the main task is a while loop to toggle two of the four LEDs on the board.
-     * When the user pushes the 'blue' button of the board, the other two LEDs begin to toggle.
+     * Main task: the main task is a while loop to toggle two of the four LEDs
+     * on the board. When the user pushes the 'blue' button of the board, the
+     * other two LEDs begin to toggle.
      */
 
     while (1) {
