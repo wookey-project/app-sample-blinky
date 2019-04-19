@@ -1,6 +1,13 @@
-#include "api/syscall.h"
-#include "api/types.h"
-#include "api/print.h"
+#include "libc/syscall.h"
+#include "libc/types.h"
+#include "libc/stdio.h"
+#include "libc/string.h"
+
+#include "generated/led_blue.h"
+#include "generated/led_red.h"
+#include "generated/led_green.h"
+#include "generated/led_orange.h"
+#include "generated/button.h"
 
 /*
  * Simple example of a single user task that uses GPIOs.
@@ -95,8 +102,8 @@ int _main(uint32_t my_id)
     /* Number of configured GPIO */
     leds.gpio_num = 4;
 
-    leds.gpios[0].kref.port = GPIO_PD;
-    leds.gpios[0].kref.pin = 12;
+    leds.gpios[0].kref.port = led_blue_dev_infos.gpios[LED_BLUE].port;
+    leds.gpios[0].kref.pin = led_blue_dev_infos.gpios[LED_BLUE].pin;
     leds.gpios[0].mask     = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
                              GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED;
     leds.gpios[0].mode     = GPIO_PIN_OUTPUT_MODE;
@@ -104,8 +111,9 @@ int _main(uint32_t my_id)
     leds.gpios[0].type     = GPIO_PIN_OTYPER_PP;
     leds.gpios[0].speed    = GPIO_PIN_HIGH_SPEED;
 
-    leds.gpios[1].kref.port = GPIO_PD;
-    leds.gpios[1].kref.pin = 13;
+
+    leds.gpios[1].kref.port = led_red_dev_infos.gpios[LED_RED].port;
+    leds.gpios[1].kref.pin = led_red_dev_infos.gpios[LED_RED].pin;
     leds.gpios[1].mask     = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
                              GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED;
     leds.gpios[1].mode     = GPIO_PIN_OUTPUT_MODE;
@@ -113,8 +121,9 @@ int _main(uint32_t my_id)
     leds.gpios[1].type     = GPIO_PIN_OTYPER_PP;
     leds.gpios[1].speed    = GPIO_PIN_HIGH_SPEED;
 
-    leds.gpios[2].kref.port = GPIO_PD;
-    leds.gpios[2].kref.pin = 14;
+
+    leds.gpios[2].kref.port = led_orange_dev_infos.gpios[LED_ORANGE].port;
+    leds.gpios[2].kref.pin = led_orange_dev_infos.gpios[LED_ORANGE].pin;
     leds.gpios[2].mask     = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
                              GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED;
     leds.gpios[2].mode     = GPIO_PIN_OUTPUT_MODE;
@@ -122,14 +131,16 @@ int _main(uint32_t my_id)
     leds.gpios[2].type     = GPIO_PIN_OTYPER_PP;
     leds.gpios[2].speed    = GPIO_PIN_HIGH_SPEED;
 
-    leds.gpios[3].kref.port = GPIO_PD;
-    leds.gpios[3].kref.pin = 15;
+    leds.gpios[3].kref.port = led_green_dev_infos.gpios[LED_GREEN].port;
+    leds.gpios[3].kref.pin = led_green_dev_infos.gpios[LED_GREEN].pin;
     leds.gpios[3].mask     = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
                              GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED;
     leds.gpios[3].mode     = GPIO_PIN_OUTPUT_MODE;
     leds.gpios[3].pupd     = GPIO_PULLDOWN;
     leds.gpios[3].type     = GPIO_PIN_OTYPER_PP;
     leds.gpios[3].speed    = GPIO_PIN_HIGH_SPEED;
+
+
 
     /* Now that the leds device structure is filled, use sys_init to initialize
      * it */
@@ -159,8 +170,8 @@ int _main(uint32_t my_id)
     strncpy (button.name, "BUTTON", sizeof (button.name));
 
     button.gpio_num = 1;
-    button.gpios[0].kref.port   = GPIO_PA;
-    button.gpios[0].kref.pin    = 0;
+    button.gpios[0].kref.port   = button_dev_infos.gpios[BUTTON].port;
+    button.gpios[0].kref.pin    = button_dev_infos.gpios[BUTTON].pin;
     button.gpios[0].mask        = GPIO_MASK_SET_MODE | GPIO_MASK_SET_PUPD |
                                   GPIO_MASK_SET_TYPE | GPIO_MASK_SET_SPEED |
                                   GPIO_MASK_SET_EXTI;
