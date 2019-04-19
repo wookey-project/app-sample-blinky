@@ -41,17 +41,7 @@ SRC = $(wildcard $(CSRC_DIR)/*.c)
 OBJ = $(patsubst %.c,$(APP_BUILD_DIR)/%.o,$(SRC))
 DEP = $(OBJ:.o=.d)
 
-#Rust sources files
-RSSRC_DIR=rust/src
-RSRC= $(wildcard $(RSRCDIR)/*.rs)
-ROBJ = $(patsubst %.rs,$(APP_BUILD_DIR)/rust/%.o,$(RSRC))
-
-#ada sources files
-ASRC_DIR = ada/src
-ASRC= $(wildcard $(ASRC_DIR)/*.adb)
-AOBJ = $(patsubst %.adb,$(APP_BUILD_DIR)/ada/%.o,$(ASRC))
-
-OUT_DIRS = $(dir $(DRVOBJ)) $(dir $(BOARD_OBJ)) $(dir $(SOC_OBJ)) $(dir $(CORE_OBJ)) $(dir $(AOBJ)) $(dir $(OBJ)) $(dir $(ROBJ))
+OUT_DIRS = $(dir $(OBJ))
 
 LDSCRIPT_NAME = $(APP_BUILD_DIR)/$(APP_NAME).ld
 
