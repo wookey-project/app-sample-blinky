@@ -31,10 +31,8 @@ led_state_t blue_state   = OFF;
 /* Blink state */
 led_state_t display_leds = ON;
 
-/*
- * This vaiable handles the button push events. It is shared between the ISR
- * handler code and the main thread, hence the 'volatile' qualifier.
- */
+/* This variable handles the button push events. It is shared between the ISR
+ * handler code and the main thread, hence the 'volatile' qualifier.  */
 volatile bool   button_pushed = false;
 
 device_t    leds, button;
